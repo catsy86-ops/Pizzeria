@@ -76,25 +76,24 @@ export default function BuilderPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row gap-20">
-        
-        {/* Lewy Panel: Wizualizacja (Midnight Studio) */}
+          {/* Lewy Panel: Wizualizacja (Midnight Studio) */}
         <div className="flex-1 lg:sticky lg:top-32 h-fit">
-          <div className="relative aspect-square rounded-[4rem] bg-[#141416] border border-white/[0.03] shadow-[0_40px_100px_rgba(0,0,0,0.5)] flex items-center justify-center overflow-hidden p-12 group">
+          <div className="relative aspect-[4/3] sm:aspect-square rounded-[2rem] md:rounded-[4rem] bg-[#141416] border border-white/[0.03] shadow-[0_40px_100px_rgba(0,0,0,0.5)] flex items-center justify-center overflow-hidden p-6 md:p-12 group">
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
             <div className="absolute -inset-10 bg-primary/5 blur-[80px] group-hover:bg-primary/10 transition-colors duration-700" />
             
-            <div className="relative w-full h-full max-w-[500px] aspect-square flex items-center justify-center">
+            <div className="relative w-full h-full max-w-[280px] sm:max-w-[400px] md:max-w-[500px] aspect-square flex items-center justify-center">
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
                 className={`relative w-full h-full transition-all duration-500 ${
-                  pizzaSize === 'S' ? 'scale-90' : pizzaSize === 'M' ? 'scale-100' : 'scale-110'
+                  pizzaSize === 'S' ? 'scale-[0.85]' : pizzaSize === 'M' ? 'scale-100' : 'scale-[1.1]'
                 }`}
               >
                 <img 
                   src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=98" 
-                  className={`w-full h-full object-cover rounded-full shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] ring-2 ring-white/5 transition-all duration-500 ${
-                    crustType === 'THIN' ? 'border-[8px]' : crustType === 'CLASSIC' ? 'border-[16px]' : 'border-[24px]'
+                  className={`w-full h-full object-cover rounded-full shadow-[0_30px_70px_rgba(0,0,0,0.6)] ring-2 ring-white/5 transition-all duration-500 ${
+                    crustType === 'THIN' ? 'border-[4px] sm:border-[8px]' : crustType === 'CLASSIC' ? 'border-[8px] sm:border-[16px]' : 'border-[12px] sm:border-[24px]'
                   } border-[#1c1c1e]`}
                   alt="Baza pizzy" 
                 />
@@ -110,7 +109,7 @@ export default function BuilderPage() {
                       className="absolute inset-0 flex items-center justify-center pointer-events-none"
                       style={{ rotate: `${(idx * 45) + (Math.random() * 10)}deg` }}
                     >
-                      <div className="w-16 h-16 glass-premium text-white rounded-2xl flex items-center justify-center font-black text-xs shadow-2xl border border-white/10 translate-x-32 md:translate-x-48">
+                      <div className="w-8 h-8 sm:w-16 sm:h-16 glass-premium text-white rounded-lg sm:rounded-2xl flex items-center justify-center font-black text-[9px] sm:text-xs shadow-2xl border border-white/10 translate-x-14 sm:translate-x-32 md:translate-x-48">
                         {t.name[0]}
                       </div>
                     </motion.div>
@@ -118,39 +117,39 @@ export default function BuilderPage() {
                 </AnimatePresence>
               </motion.div>
             </div>
-
-            <div className="absolute bottom-10 left-10 right-10">
+ 
+            <div className="absolute bottom-4 sm:bottom-10 left-4 sm:left-10 right-4 sm:right-10">
               <motion.div 
                 layout
-                className="glass-premium p-10 rounded-[3rem] text-white flex items-center justify-between shadow-3xl overflow-hidden"
+                className="glass-premium p-4 sm:p-10 rounded-[1.8rem] sm:rounded-[3rem] text-white flex items-center justify-between shadow-3xl overflow-hidden"
               >
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent opacity-30" />
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-3">Wartość Twojego Dzieła</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-black text-white">{totalPrice.toFixed(0)}</span>
-                    <span className="text-sm font-black text-primary uppercase tracking-widest">PLN</span>
+                  <p className="text-[7px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-1 sm:mb-3">Suma</p>
+                  <div className="flex items-baseline gap-1 sm:gap-2">
+                    <span className="text-2xl sm:text-5xl font-black text-white">{totalPrice.toFixed(0)}</span>
+                    <span className="text-[8px] sm:text-sm font-black text-primary uppercase tracking-widest">PLN</span>
                   </div>
                 </div>
                 <button 
                   onClick={handleAddToCart}
-                  className="bg-primary hover:bg-[#ff6a00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-95 shadow-2xl shadow-primary/30 cursor-pointer"
+                  className="bg-primary hover:bg-[#ff6a00] text-white px-5 sm:px-10 py-3 sm:py-5 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-xs uppercase tracking-[0.2em] transition-all active:scale-95 shadow-2xl shadow-primary/30 cursor-pointer"
                 >
-                  GOTOWE
+                  DODAJ
                 </button>
               </motion.div>
             </div>
           </div>
-        </div>
+        </div>     </div>
 
         {/* Prawy Panel: Składniki i Konfiguracja */}
         <div className="flex-1 space-y-16">
           
           {/* Rozmiar i Ciasto */}
-          <div className="glass-premium p-10 rounded-[3rem] border border-white/5 space-y-10">
+          <div className="glass-premium p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-white/5 space-y-8 sm:space-y-10">
             <div className="space-y-4">
               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">1. Wybierz Rozmiar</h4>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 {[
                   { id: 'S', label: 'Mała', desc: '30cm', price: '+0 PLN' },
                   { id: 'M', label: 'Średnia', desc: '40cm', price: '+8 PLN' },
@@ -159,23 +158,23 @@ export default function BuilderPage() {
                   <button
                     key={sizeOpt.id}
                     onClick={() => setPizzaSize(sizeOpt.id as any)}
-                    className={`p-6 rounded-[1.8rem] border-2 transition-all cursor-pointer flex flex-col items-center justify-center ${
+                    className={`p-3 sm:p-6 rounded-2xl sm:rounded-[1.8rem] border-2 transition-all cursor-pointer flex flex-col items-center justify-center ${
                       pizzaSize === sizeOpt.id
                         ? 'border-primary bg-primary/10 text-white'
                         : 'border-white/5 bg-white/[0.02] text-white/50 hover:border-white/20'
                     }`}
                   >
-                    <span className="font-black text-xs uppercase tracking-wider">{sizeOpt.label}</span>
-                    <span className="text-[10px] font-bold mt-1 opacity-70">{sizeOpt.desc}</span>
-                    <span className="text-[9px] font-black text-primary mt-2">{sizeOpt.price}</span>
+                    <span className="font-black text-[10px] sm:text-xs uppercase tracking-wider">{sizeOpt.label}</span>
+                    <span className="text-[8px] sm:text-[10px] font-bold mt-0.5 sm:mt-1 opacity-70">{sizeOpt.desc}</span>
+                    <span className="text-[8px] sm:text-[9px] font-black text-primary mt-1 sm:mt-2">{sizeOpt.price}</span>
                   </button>
                 ))}
               </div>
             </div>
-
+ 
             <div className="space-y-4">
               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">2. Wybierz Ciasto</h4>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 {[
                   { id: 'THIN', label: 'Cienkie', desc: 'Cienkie', price: '+0 PLN' },
                   { id: 'CLASSIC', label: 'Klasyczne', desc: 'Klasyczne', price: '+0 PLN' },
@@ -184,30 +183,30 @@ export default function BuilderPage() {
                   <button
                     key={crustOpt.id}
                     onClick={() => setCrustType(crustOpt.id as any)}
-                    className={`p-6 rounded-[1.8rem] border-2 transition-all cursor-pointer flex flex-col items-center justify-center ${
+                    className={`p-3 sm:p-6 rounded-2xl sm:rounded-[1.8rem] border-2 transition-all cursor-pointer flex flex-col items-center justify-center ${
                       crustType === crustOpt.id
                         ? 'border-primary bg-primary/10 text-white'
                         : 'border-white/5 bg-white/[0.02] text-white/50 hover:border-white/20'
                     }`}
                   >
-                    <span className="font-black text-xs uppercase tracking-wider">{crustOpt.label}</span>
-                    <span className="text-[10px] font-bold mt-1 opacity-70">{crustOpt.desc}</span>
-                    <span className="text-[9px] font-black text-primary mt-2">{crustOpt.price}</span>
+                    <span className="font-black text-[10px] sm:text-xs uppercase tracking-wider">{crustOpt.label}</span>
+                    <span className="text-[8px] sm:text-[10px] font-bold mt-0.5 sm:mt-1 opacity-70">{crustOpt.desc}</span>
+                    <span className="text-[8px] sm:text-[9px] font-black text-primary mt-1 sm:mt-2">{crustOpt.price}</span>
                   </button>
                 ))}
               </div>
             </div>
           </div>
-
+ 
           {/* Wybór Dodatków */}
-          <div className="space-y-10">
+          <div className="space-y-6 sm:space-y-10">
             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">3. Dobierz Składniki</h4>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-2 sm:gap-4">
             {['ALL', 'MEAT', 'VEGGIE', 'EXTRA'].map(cat => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat as any)}
-                className={`px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all ${
+                className={`px-4 sm:px-8 py-2.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em] transition-all ${
                   activeCategory === cat 
                     ? 'bg-primary text-white shadow-[0_10px_30px_rgba(255,77,0,0.3)] scale-105' 
                     : 'glass-premium text-white/40 hover:text-white hover:bg-white/[0.05]'

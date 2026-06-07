@@ -22,6 +22,16 @@ export default function HomePage() {
   const [preview, setPreview] = useState<{ x: number; y: number; show: boolean }>({ x: 0, y: 0, show: false });
   const [particles, setParticles] = useState<{ id: number; x: number; y: number }[]>([]);
   
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleHeroMouseMove = (e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    const x = (clientX / innerWidth) * 2 - 1;
+    const y = (clientY / innerHeight) * 2 - 1;
+    setMousePos({ x, y });
+  };
+
   const pizzaRef = useRef<HTMLDivElement>(null);
 
   const handlePizzaClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -165,7 +175,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#0a0a0b] text-white selection:bg-primary overflow-x-hidden font-sans">
+    <div className="relative min-h-screen bg-[#0a0a0b] text-white selection:bg-primary overflow-x-hidden font-sans" onMouseMove={handleHeroMouseMove}>
       
       {/* 1. ATMOSPHERIC BACKGROUND (CINEMATIC HEAT & OVEN ART) */}
       <div className="absolute inset-0 z-0 h-screen overflow-hidden">
@@ -174,12 +184,16 @@ export default function HomePage() {
           animate={{ 
             scale: [1.02, 1.06, 1.02],
             rotate: [0, 0.4, -0.4, 0],
-            opacity: 0.85
+            opacity: 0.85,
+            x: mousePos.x * -16,
+            y: mousePos.y * -16
           }}
           transition={{ 
-            duration: 15, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
+            x: { type: "spring", stiffness: 90, damping: 20 },
+            y: { type: "spring", stiffness: 90, damping: 20 },
+            scale: { duration: 15, repeat: Infinity, ease: "easeInOut" },
+            rotate: { duration: 15, repeat: Infinity, ease: "easeInOut" },
+            opacity: { duration: 2 }
           }}
           className="w-full h-full relative"
         >
@@ -189,13 +203,30 @@ export default function HomePage() {
             className="w-full h-full object-cover brightness-[0.85] contrast-[1.05]"
             style={{ filter: 'url(#oven-heat-shimmer)' }}
           />
+          {/* Dynamic fire light glow reflections on pizza */}
+          <motion.div
+            animate={{
+              opacity: [0.15, 0.35, 0.22, 0.42, 0.15],
+              scale: [1, 1.08, 0.96, 1.05, 1],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,rgba(255,77,0,0.25)_0%,transparent_50%),radial-gradient(circle_at_80%_65%,rgba(255,184,0,0.18)_0%,transparent_60%)] mix-blend-color-dodge pointer-events-none"
+          />
           {/* Subtle Rim Lighting (gentle to keep pizza crisp and visible) */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0b]/60 via-[#0a0a0b]/10 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b] via-transparent to-[#0a0a0b]/30" />
         </motion.div>
 
         {/* Bubbling Cheese & Dough Heat Spots */}
-        <div className="absolute inset-0 z-[1] pointer-events-none">
+        <motion.div 
+          animate={{ x: mousePos.x * -10, y: mousePos.y * -10 }}
+          transition={{ type: "spring", stiffness: 90, damping: 20 }}
+          className="absolute inset-0 z-[1] pointer-events-none"
+        >
           {/* Active Bubble 1: Large glowing cheese bubble */}
           <motion.div 
             animate={{ 
@@ -254,7 +285,7 @@ export default function HomePage() {
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.8 }}
             className="absolute top-[58%] left-[54%] w-40 h-24 bg-gradient-to-br from-yellow-400/35 via-red-500/10 to-transparent blur-2xl"
           />
-        </div>
+        </motion.div>
 
         {/* SVG Filter for Heat Waves / Shimmering Cheese (Tuned to keep details sharp) */}
         <svg className="absolute w-0 h-0 pointer-events-none">
@@ -263,7 +294,14 @@ export default function HomePage() {
               <feTurbulence type="fractalNoise" baseFrequency="0.004 0.008" numOctaves="2" result="noise">
                 <animate attributeName="baseFrequency" dur="18s" values="0.004 0.008;0.006 0.014;0.004 0.008" repeatCount="indefinite" />
               </feTurbulence>
-              <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+              <motion.feDisplacementMap 
+                in="SourceGraphic" 
+                in2="noise" 
+                animate={{ scale: [2, 4.5, 2] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                xChannelSelector="R" 
+                yChannelSelector="G" 
+              />
             </filter>
           </defs>
         </svg>
@@ -287,7 +325,7 @@ export default function HomePage() {
               }}
               animate={{
                 y: ['105vh', '-10vh'],
-                x: [0, Math.sin(i) * 60 + (Math.random() * 40 - 20), 0],
+                x: [0, Math.sin(i) * 60 + (Math.random() * 40 - 20) + (mousePos.x * 20), 0],
                 opacity: [0, 0.7, 0],
               }}
               transition={{
@@ -418,12 +456,12 @@ export default function HomePage() {
               <motion.div
                 animate={{ y: [0, -12, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-4 -left-6 glass-premium px-6 py-4 rounded-2xl flex items-center gap-3 shadow-2xl border-white/10"
+                className="absolute top-4 md:-left-6 left-2 glass-premium px-4 md:px-6 py-2.5 md:py-4 rounded-2xl flex items-center gap-2.5 md:gap-3 shadow-2xl border-white/10"
               >
-                <Flame size={20} className="text-primary fill-current" />
+                <Flame size={18} className="text-primary fill-current" />
                 <div>
-                  <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Temperatura</p>
-                  <p className="font-black text-white text-sm">450°C</p>
+                  <p className="text-[7px] md:text-[8px] font-black text-gray-400 uppercase tracking-widest">Temperatura</p>
+                  <p className="font-black text-white text-xs md:text-sm">450°C</p>
                 </div>
               </motion.div>
 
@@ -431,12 +469,12 @@ export default function HomePage() {
               <motion.div
                 animate={{ y: [0, 12, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                className="absolute bottom-6 -right-6 glass-premium px-6 py-4 rounded-2xl flex items-center gap-3 shadow-2xl border-white/10"
+                className="absolute bottom-6 md:-right-6 right-2 glass-premium px-4 md:px-6 py-2.5 md:py-4 rounded-2xl flex items-center gap-2.5 md:gap-3 shadow-2xl border-white/10"
               >
-                <ShieldCheck size={20} className="text-accent" />
+                <ShieldCheck size={18} className="text-accent" />
                 <div>
-                  <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Certyfikat</p>
-                  <p className="font-black text-white text-sm">D.O.P. Gold</p>
+                  <p className="text-[7px] md:text-[8px] font-black text-gray-400 uppercase tracking-widest">Certyfikat</p>
+                  <p className="font-black text-white text-xs md:text-sm">D.O.P. Gold</p>
                 </div>
               </motion.div>
 
@@ -444,10 +482,10 @@ export default function HomePage() {
               <motion.div
                 animate={{ x: [0, 8, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-                className="absolute top-1/2 -translate-y-1/2 -right-12 bg-white text-black px-6 py-3.5 rounded-full flex items-center gap-3 shadow-2xl"
+                className="absolute top-1/2 -translate-y-1/2 md:-right-12 right-2 bg-white text-black px-4 md:px-6 py-2.5 md:py-3.5 rounded-full flex items-center gap-2.5 md:gap-3 shadow-2xl"
               >
-                <Sparkles size={16} className="text-primary fill-current" />
-                <span className="font-black text-[9px] uppercase tracking-widest">Drewno Bukowe</span>
+                <Sparkles size={14} className="text-primary fill-current" />
+                <span className="font-black text-[8px] md:text-[9px] uppercase tracking-widest">Drewno Bukowe</span>
               </motion.div>
             </motion.div>
           </div>

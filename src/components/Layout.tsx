@@ -9,7 +9,7 @@ export default function Layout() {
       <TopNav />
       
       {/* Treść Główna - odsunięta od góry i dołu (na mobile) */}
-      <main className="flex-grow pt-24 md:pt-32 pb-32 md:pb-0">
+      <main className="flex-grow pt-24 md:pt-32 pb-36 md:pb-0 px-2 sm:px-4 md:px-0">
         <Outlet />
       </main>
 
