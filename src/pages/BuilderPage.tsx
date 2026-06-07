@@ -14,6 +14,88 @@ const TOPPING_CATEGORIES = {
   EXTRA: ['Extra Ser']
 };
 
+const TOPPING_OFFSETS: Record<string, { r: number; a: number }[]> = {
+  'Pepperoni': [
+    { r: 0.3, a: 15 }, { r: 0.5, a: 75 }, { r: 0.7, a: 135 },
+    { r: 0.4, a: 195 }, { r: 0.6, a: 255 }, { r: 0.5, a: 315 },
+    { r: 0.2, a: 180 }, { r: 0.65, a: 45 }
+  ],
+  'Salami': [
+    { r: 0.35, a: 45 }, { r: 0.55, a: 105 }, { r: 0.65, a: 165 },
+    { r: 0.45, a: 225 }, { r: 0.6, a: 285 }, { r: 0.25, a: 345 }
+  ],
+  'Pieczarki': [
+    { r: 0.25, a: 60 }, { r: 0.45, a: 120 }, { r: 0.65, a: 180 },
+    { r: 0.35, a: 240 }, { r: 0.55, a: 300 }, { r: 0.6, a: 0 },
+    { r: 0.7, a: 90 }
+  ],
+  'Cebula': [
+    { r: 0.3, a: 90 }, { r: 0.5, a: 150 }, { r: 0.7, a: 210 },
+    { r: 0.4, a: 270 }, { r: 0.6, a: 330 }, { r: 0.55, a: 30 }
+  ],
+  'Boczek': [
+    { r: 0.4, a: 30 }, { r: 0.6, a: 110 }, { r: 0.5, a: 190 },
+    { r: 0.65, a: 270 }, { r: 0.3, a: 350 }
+  ],
+  'Czarne Oliwki': [
+    { r: 0.2, a: 0 }, { r: 0.4, a: 60 }, { r: 0.6, a: 120 },
+    { r: 0.3, a: 180 }, { r: 0.5, a: 240 }, { r: 0.7, a: 300 },
+    { r: 0.45, a: 340 }, { r: 0.65, a: 40 }
+  ],
+  'Zielona Papryka': [
+    { r: 0.3, a: 100 }, { r: 0.5, a: 160 }, { r: 0.7, a: 220 },
+    { r: 0.4, a: 280 }, { r: 0.65, a: 340 }, { r: 0.55, a: 40 }
+  ],
+  'Ananas': [
+    { r: 0.25, a: 20 }, { r: 0.45, a: 80 }, { r: 0.65, a: 140 },
+    { r: 0.35, a: 200 }, { r: 0.55, a: 260 }, { r: 0.6, a: 320 }
+  ],
+  'Szpinak': [
+    { r: 0.3, a: 80 }, { r: 0.5, a: 140 }, { r: 0.7, a: 200 },
+    { r: 0.4, a: 260 }, { r: 0.6, a: 320 }, { r: 0.5, a: 20 }
+  ],
+  'Extra Ser': [
+    { r: 0.15, a: 0 }, { r: 0.35, a: 90 }, { r: 0.45, a: 180 },
+    { r: 0.3, a: 270 }, { r: 0.5, a: 45 }, { r: 0.6, a: 225 }
+  ],
+};
+
+const renderToppingVisual = (name: string) => {
+  switch (name) {
+    case 'Pepperoni':
+      return <div className="w-8 h-8 sm:w-11 sm:h-11 bg-red-600 rounded-full border-[3px] border-red-800 shadow-md flex items-center justify-center scale-90" />;
+    case 'Salami':
+      return <div className="w-8 h-8 sm:w-11 sm:h-11 bg-red-700 rounded-full border-[2px] border-red-950 shadow-md flex items-center justify-center scale-95 opacity-90" />;
+    case 'Pieczarki':
+      return (
+        <div className="w-7 h-6 sm:w-9 sm:h-8 flex flex-col items-center justify-center">
+          <div className="w-7 h-3.5 bg-amber-100/90 rounded-t-full border border-amber-300/40" />
+          <div className="w-2 h-2.5 bg-amber-100/80 -mt-0.5 border-x border-b border-amber-300/40" />
+        </div>
+      );
+    case 'Cebula':
+      return <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full border-2 sm:border-3 border-purple-500 bg-transparent opacity-85 shadow-sm" />;
+    case 'Boczek':
+      return <div className="w-4 h-9 sm:w-6 sm:h-13 bg-gradient-to-r from-red-700 via-amber-100 to-red-800 rounded-sm shadow-sm rotate-[15deg]" />;
+    case 'Czarne Oliwki':
+      return <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-[4px] sm:border-[5px] border-zinc-950 bg-transparent shadow-md" />;
+    case 'Zielona Papryka':
+      return <div className="w-6 h-6 sm:w-8 sm:h-8 border-l-4 border-t-4 border-green-600 rounded-tl-full opacity-80" />;
+    case 'Ananas':
+      return <div className="w-5 h-4 sm:w-7 sm:h-6 bg-amber-400 border border-amber-600/30 rounded-md shadow-sm skew-x-6" />;
+    case 'Szpinak':
+      return <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-800 rounded-full rounded-tr-[1.5rem] opacity-75 shadow-sm rotate-[25deg]" />;
+    case 'Extra Ser':
+      return <div className="w-8 h-8 sm:w-11 sm:h-11 bg-yellow-200/50 rounded-full blur-[4px] border border-yellow-300/30" />;
+    default:
+      return (
+        <div className="w-7 h-7 sm:w-9 sm:h-9 glass-premium text-white rounded-full flex items-center justify-center font-black text-[9px] sm:text-xs shadow-2xl border border-white/10">
+          {name[0]}
+        </div>
+      );
+  }
+};
+
 export default function BuilderPage() {
   const [selectedToppings, setSelectedToppings] = useState<Topping[]>([]);
   const [pizzaSize, setPizzaSize] = useState<'S' | 'M' | 'L'>('M');
@@ -84,11 +166,15 @@ export default function BuilderPage() {
             
             <div className="relative w-full h-full max-w-[280px] sm:max-w-[400px] md:max-w-[500px] aspect-square flex items-center justify-center">
               <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
-                className={`relative w-full h-full transition-all duration-500 ${
-                  pizzaSize === 'S' ? 'scale-[0.85]' : pizzaSize === 'M' ? 'scale-100' : 'scale-[1.1]'
-                }`}
+                animate={{ 
+                  rotate: 360,
+                  scale: pizzaSize === 'S' ? 0.85 : pizzaSize === 'M' ? 1.0 : 1.1
+                }}
+                transition={{ 
+                  rotate: { duration: 180, repeat: Infinity, ease: "linear" },
+                  scale: { type: "spring", stiffness: 100, damping: 15 }
+                }}
+                className="relative w-full h-full"
               >
                 <img 
                   src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=98" 
@@ -99,26 +185,36 @@ export default function BuilderPage() {
                 />
                 
                 <AnimatePresence>
-                  {selectedToppings.map((t, idx) => (
-                    <motion.div
-                      key={t.id}
-                      initial={{ scale: 0, opacity: 0, rotate: -45 }}
-                      animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                      style={{ rotate: `${(idx * 45) + (Math.random() * 10)}deg` }}
-                    >
-                      <div className="w-8 h-8 sm:w-16 sm:h-16 glass-premium text-white rounded-lg sm:rounded-2xl flex items-center justify-center font-black text-[9px] sm:text-xs shadow-2xl border border-white/10 translate-x-14 sm:translate-x-32 md:translate-x-48">
-                        {t.name[0]}
-                      </div>
-                    </motion.div>
-                  ))}
+                  {selectedToppings.flatMap((t, toppingIdx) => {
+                    const offsets = TOPPING_OFFSETS[t.name] || [{ r: 0.4, a: toppingIdx * 45 }];
+                    return offsets.map((offset, idx) => {
+                      const x = Math.cos((offset.a * Math.PI) / 180) * offset.r * 100;
+                      const y = Math.sin((offset.a * Math.PI) / 180) * offset.r * 100;
+                      return (
+                        <motion.div
+                          key={`${t.id}-${idx}`}
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          transition={{ type: "spring", stiffness: 150, damping: 15, delay: idx * 0.03 }}
+                          className="absolute pointer-events-none z-10"
+                          style={{
+                            left: `calc(50% + ${x * 0.75}%)`,
+                            top: `calc(50% + ${y * 0.75}%)`,
+                          }}
+                        >
+                          <div style={{ transform: 'translate(-50%, -50%)' }}>
+                            {renderToppingVisual(t.name)}
+                          </div>
+                        </motion.div>
+                      );
+                    });
+                  })}
                 </AnimatePresence>
               </motion.div>
             </div>
  
-            <div className="absolute bottom-4 sm:bottom-10 left-4 sm:left-10 right-4 sm:right-10">
+            <div className="absolute bottom-4 sm:bottom-10 left-4 sm:left-10 right-4 sm:right-10 z-20">
               <motion.div 
                 layout
                 className="glass-premium p-4 sm:p-10 rounded-[1.8rem] sm:rounded-[3rem] text-white flex items-center justify-between shadow-3xl overflow-hidden"
@@ -300,7 +396,7 @@ export default function BuilderPage() {
                 </button>
             </div>
             
-            <PizzaIcon className="absolute -right-16 -bottom-16 w-64 h-64 text-primary opacity-[0.03] rotate-12 transition-transform duration-1000 group-hover:rotate-45" />
+             <PizzaIcon className="absolute -right-16 -bottom-16 w-64 h-64 text-primary opacity-[0.03] rotate-12 transition-transform duration-1000 group-hover:rotate-45 pointer-events-none" />
           </div>
           </div>
           </div>

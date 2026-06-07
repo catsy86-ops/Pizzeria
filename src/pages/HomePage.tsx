@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, type Variants } from 'framer-motion';
+import { motion, type Variants, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, Sparkles, ShieldCheck, Flame, Play, RotateCcw, Scissors } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -28,17 +28,31 @@ export default function HomePage() {
   const [bakeProgress, setBakeProgress] = useState<number>(0);
   const [isBaked, setIsBaked] = useState<boolean>(false);
   const [isSliced, setIsSliced] = useState<boolean>(false);
-  const [preview, setPreview] = useState<{ x: number; y: number; show: boolean }>({ x: 0, y: 0, show: false });
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+  const previewX = useMotionValue(0);
+  const previewY = useMotionValue(0);
+  const previewLeft = useTransform(previewX, x => `${x}%`);
+  const previewTop = useTransform(previewY, y => `${y}%`);
+
   const [particles, setParticles] = useState<{ id: number; x: number; y: number }[]>([]);
   
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { stiffness: 90, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 90, damping: 20 });
+
+  const pizzaTranslateX = useTransform(springX, x => x * -16);
+  const pizzaTranslateY = useTransform(springY, y => y * -16);
+  const cheeseTranslateX = useTransform(springX, x => x * -10);
+  const cheeseTranslateY = useTransform(springY, y => y * -10);
 
   const handleHeroMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
     const x = (clientX / innerWidth) * 2 - 1;
     const y = (clientY / innerHeight) * 2 - 1;
-    setMousePos({ x, y });
+    mouseX.set(x);
+    mouseY.set(y);
   };
 
   const pizzaRef = useRef<HTMLDivElement>(null);
@@ -82,30 +96,32 @@ export default function HomePage() {
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (isSliced || isBaking) {
-      setPreview({ x: 0, y: 0, show: false });
+      if (showPreview) setShowPreview(false);
       return;
     }
     if (!pizzaRef.current) return;
     const rect = pizzaRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const mouseXVal = e.clientX - rect.left;
+    const mouseYVal = e.clientY - rect.top;
     
-    const percentX = (mouseX / rect.width) * 100;
-    const percentY = (mouseY / rect.height) * 100;
+    const percentX = (mouseXVal / rect.width) * 100;
+    const percentY = (mouseYVal / rect.height) * 100;
     
     const dx = percentX - 50;
     const dy = percentY - 50;
     const distance = Math.sqrt(dx * dx + dy * dy);
     
     if (distance <= 43) {
-      setPreview({ x: percentX, y: percentY, show: true });
+      previewX.set(percentX);
+      previewY.set(percentY);
+      if (!showPreview) setShowPreview(true);
     } else {
-      setPreview({ x: 0, y: 0, show: false });
+      if (showPreview) setShowPreview(false);
     }
   };
 
   const handleMouseLeave = () => {
-    setPreview({ x: 0, y: 0, show: false });
+    if (showPreview) setShowPreview(false);
   };
 
   const startBaking = () => {
@@ -131,7 +147,7 @@ export default function HomePage() {
     setIsBaked(false);
     setBakeProgress(0);
     setIsSliced(false);
-    setPreview({ x: 0, y: 0, show: false });
+    setShowPreview(false);
     setParticles([]);
   };
 
@@ -197,12 +213,9 @@ export default function HomePage() {
             scale: [1.02, 1.06, 1.02],
             rotate: [0, 0.4, -0.4, 0],
             opacity: 0.85,
-            x: mousePos.x * -16,
-            y: mousePos.y * -16
           }}
+          style={isMobile ? undefined : { x: pizzaTranslateX, y: pizzaTranslateY }}
           transition={isMobile ? { duration: 1 } : { 
-            x: { type: "spring", stiffness: 90, damping: 20 },
-            y: { type: "spring", stiffness: 90, damping: 20 },
             scale: { duration: 15, repeat: Infinity, ease: "easeInOut" },
             rotate: { duration: 15, repeat: Infinity, ease: "easeInOut" },
             opacity: { duration: 2 }
@@ -235,8 +248,7 @@ export default function HomePage() {
 
         {/* Bubbling Cheese & Dough Heat Spots */}
         <motion.div 
-          animate={isMobile ? {} : { x: mousePos.x * -10, y: mousePos.y * -10 }}
-          transition={{ type: "spring", stiffness: 90, damping: 20 }}
+          style={isMobile ? undefined : { x: cheeseTranslateX, y: cheeseTranslateY }}
           className="absolute inset-0 z-[1] pointer-events-none"
         >
           {/* Active Bubble 1: Large glowing cheese bubble */}
@@ -339,7 +351,7 @@ export default function HomePage() {
               }}
               animate={{
                 y: ['105vh', '-10vh'],
-                x: isMobile ? [0, Math.sin(i) * 30, 0] : [0, Math.sin(i) * 60 + (Math.random() * 40 - 20) + (mousePos.x * 20), 0],
+                x: isMobile ? [0, Math.sin(i) * 30, 0] : [0, Math.sin(i) * 60 + (Math.random() * 40 - 20), 0],
                 opacity: [0, 0.7, 0],
               }}
               transition={{
@@ -956,12 +968,12 @@ export default function HomePage() {
                 ))}
 
                 {/* Topping placement preview */}
-                {preview.show && (
-                  <div 
+                {showPreview && (
+                  <motion.div 
                     className="absolute pointer-events-none z-40 opacity-40 scale-100"
                     style={{
-                      left: `${preview.x}%`,
-                      top: `${preview.y}%`,
+                      left: previewLeft,
+                      top: previewTop,
                       transform: 'translate(-50%, -50%)',
                     }}
                   >
@@ -985,7 +997,7 @@ export default function HomePage() {
                     {selectedTopping === 'chili' && (
                       <div className="w-8 h-3 bg-red-600 rounded-full border border-red-800 skew-x-12" />
                     )}
-                  </div>
+                  </motion.div>
                 )}
               </div>
             </div>

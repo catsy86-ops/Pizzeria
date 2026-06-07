@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   CheckCircle2, Clock, ChefHat, Truck, PackageCheck, 
-  MapPin, Phone, MessageSquare, Star, Navigation2, Flame
+  MapPin, Phone, MessageSquare, Star, Navigation2, Flame, Send, X, Terminal
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -26,6 +26,15 @@ export default function OrderPage() {
   const [timeLeft, setTimeLeft] = useState(25 * 60); 
   const orderId = useMemo(() => `UF-${Math.floor(100000 + Math.random() * 900000)}`, []);
 
+  // Chat states
+  const [chatOpen, setChatOpen] = useState(false);
+  const [messages, setMessages] = useState<{ sender: 'user' | 'driver'; text: string; time: string }[]>([
+    { sender: 'driver', text: 'Cześć! Odebrałem Twoje zamówienie. Wyruszam w drogę!', time: new Date().toTimeString().substring(0, 5) }
+  ]);
+  const [inputVal, setInputVal] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (currentStep < STATUSES.length - 1) {
       const duration = currentStep === 4 ? 12000 : 7000; 
@@ -41,6 +50,11 @@ export default function OrderPage() {
     }
   }, [timeLeft, currentStep]);
 
+  // Scroll chat to bottom
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping]);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -52,8 +66,147 @@ export default function OrderPage() {
   const courierLeft = 15 + progressRatio * 70; // 15% to 85%
   const courierTop = 48 + Math.sin(progressRatio * Math.PI) * -12; // curve effect
 
+  // Generate logistics logs based on step
+  const logEvents = useMemo(() => {
+    const fmt = (minutesOffset: number) => {
+      const d = new Date(Date.now() - (30 - minutesOffset) * 60000);
+      return d.toTimeString().split(' ')[0];
+    };
+    return [
+      { step: 0, time: fmt(0), text: 'Zamówienie przyjęte do systemu uFisza. Weryfikacja płatności.' },
+      { step: 1, time: fmt(2), text: 'Wyrabianie ciasta (mąka Caputo Nuvola, hydratacja 70%).' },
+      { step: 2, time: fmt(5), text: 'Nałożenie składników: pomidory San Marzano, mozzarella Fior di Latte.' },
+      { step: 3, time: fmt(8), text: 'Wypiek w piecu opalanym drewnem bukowym w temp. 450°C.' },
+      { step: 4, time: fmt(10), text: 'Wypiek zakończony. Kontrola jakości certyfikatu D.O.P. pomyślna.' },
+      { step: 5, time: fmt(12), text: 'Paczka przekazana kurierowi. Marek Rossi wyrusza na Vespie.' },
+    ];
+  }, []);
+
+  const activeLogs = logEvents.filter(log => log.step <= currentStep);
+
+  const sendMessage = (text: string) => {
+    if (!text.trim()) return;
+    const timeStr = new Date().toTimeString().substring(0, 5);
+    setMessages(prev => [...prev, { sender: 'user', text, time: timeStr }]);
+    setInputVal('');
+    
+    // Trigger simulated response
+    setIsTyping(true);
+    setTimeout(() => {
+      setIsTyping(false);
+      let reply = 'Okej, zrozumiałem! Będę jak najszybciej.';
+      if (text.toLowerCase().includes('drzwi')) {
+        reply = 'Jasne, zostawię pizzę pod drzwiami i zapukam.';
+      } else if (text.toLowerCase().includes('kod') || text.toLowerCase().includes('bram') || text.toLowerCase().includes('domofon')) {
+        reply = 'Super, wielkie dzięki! To mi znacznie ułatwi wejście.';
+      } else if (text.toLowerCase().includes('dzięk') || text.toLowerCase().includes('dziek')) {
+        reply = 'Nie ma sprawy, polecam się i smacznego!';
+      }
+      setMessages(prev => [...prev, { sender: 'driver', text: reply, time: new Date().toTimeString().substring(0, 5) }]);
+    }, 1500);
+  };
+
   return (
-    <div className="py-12 px-6 max-w-7xl mx-auto space-y-12 pb-40 font-sans text-white">
+    <div className="py-12 px-6 max-w-7xl mx-auto space-y-12 pb-40 font-sans text-white relative">
+      
+      {/* Live Chat Modal */}
+      <AnimatePresence>
+        {chatOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-md bg-[#141416] border border-white/10 rounded-[2.5rem] shadow-3xl overflow-hidden flex flex-col h-[550px]"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+                <div className="flex items-center gap-4">
+                  <img src={DRIVER.image} className="w-10 h-10 rounded-xl object-cover ring-2 ring-white/5" alt="driver" />
+                  <div>
+                    <h4 className="font-black text-sm text-white uppercase tracking-wider">{DRIVER.name}</h4>
+                    <p className="text-[8px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1">
+                      <span className="w-1 h-1 bg-emerald-400 rounded-full animate-ping" />
+                      Kurier w trasie
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setChatOpen(false)} 
+                  className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-white/60 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Message Area */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
+                {messages.map((msg, idx) => (
+                  <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[75%] p-4 rounded-2xl flex flex-col gap-1 ${
+                      msg.sender === 'user' 
+                        ? 'bg-primary text-white rounded-tr-none' 
+                        : 'bg-white/5 text-gray-200 border border-white/5 rounded-tl-none'
+                    }`}>
+                      <p className="text-xs font-semibold leading-relaxed">{msg.text}</p>
+                      <span className="text-[8px] text-white/40 text-right self-end font-mono">{msg.time}</span>
+                    </div>
+                  </div>
+                ))}
+                
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="bg-white/5 p-4 rounded-2xl rounded-tl-none border border-white/5 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                )}
+                <div ref={chatBottomRef} />
+              </div>
+
+              {/* Quick Replies */}
+              <div className="px-6 py-2 flex gap-2 overflow-x-auto no-scrollbar flex-shrink-0">
+                {[
+                  'Zostaw pod drzwiami',
+                  'Kod do domofonu to #55',
+                  'Dzięki za dostawę!'
+                ].map((phrase, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => sendMessage(phrase)}
+                    className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 text-[9px] font-black uppercase text-white/60 hover:text-white transition-all whitespace-nowrap cursor-pointer"
+                  >
+                    {phrase}
+                  </button>
+                ))}
+              </div>
+
+              {/* Message Input */}
+              <form 
+                onSubmit={(e) => { e.preventDefault(); sendMessage(inputVal); }}
+                className="p-4 border-t border-white/5 flex gap-3 bg-white/[0.01]"
+              >
+                <input
+                  type="text"
+                  value={inputVal}
+                  onChange={(e) => setInputVal(e.target.value)}
+                  placeholder="Napisz do Marka..."
+                  className="flex-1 bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-primary text-white"
+                />
+                <button 
+                  type="submit"
+                  className="p-3 bg-primary hover:bg-[#ff6a00] rounded-xl text-white transition-all active:scale-95 cursor-pointer shadow-lg shadow-primary/20"
+                >
+                  <Send size={16} />
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <header className="flex flex-col md:flex-row justify-between items-end gap-8 border-b border-white/5 pb-12">
         <div className="space-y-4">
           <motion.div 
@@ -63,7 +216,7 @@ export default function OrderPage() {
              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
              Śledzenie na żywo
           </motion.div>
-          <h2 className="text-6xl md:text-8xl font-black text-white tracking-tighter uppercase leading-none">STATUS <br/><span className="text-primary italic">UCZTY</span></h2>
+          <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase leading-none">STATUS <br/><span className="text-primary italic">UCZTY</span></h2>
         </div>
         <div className="text-right">
            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em] mb-2">Numer Zamówienia</p>
@@ -143,11 +296,12 @@ export default function OrderPage() {
                </div>
                
                {/* Map Landmarks */}
-               <div className="absolute inset-0">
+               <div className="absolute inset-0 pointer-events-none">
                   {/* Pizzeria Node */}
                   <div className="absolute left-[15%] top-[48%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10">
                      <div className="w-14 h-14 glass-premium rounded-2xl flex items-center justify-center border-white/10 shadow-2xl relative">
                         <ChefHat size={24} className="text-orange-400" />
+                        <span className="absolute -inset-4 rounded-full border border-orange-500/20 animate-ping opacity-60" />
                         <span className="absolute -top-1 -right-1 flex h-3 w-3">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
@@ -171,6 +325,7 @@ export default function OrderPage() {
                   <div className="absolute left-[85%] top-[48%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-10">
                      <div className="w-14 h-14 glass-premium rounded-2xl flex items-center justify-center border-white/10 shadow-2xl relative">
                         <MapPin size={24} className="text-primary" />
+                        <span className="absolute -inset-4 rounded-full border border-primary/20 animate-ping opacity-60" style={{ animationDelay: '1000ms' }} />
                         <span className="absolute -top-1 -right-1 flex h-3 w-3">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
@@ -229,14 +384,42 @@ export default function OrderPage() {
               </div>
             </div>
             <div className="flex gap-4 w-full sm:w-auto">
-              <button className="flex-1 sm:flex-none p-6 glass-premium text-white rounded-[1.5rem] hover:bg-white hover:text-black transition-all active:scale-95 shadow-xl border-white/5 cursor-pointer">
+              <button 
+                onClick={() => setChatOpen(true)}
+                className="flex-1 sm:flex-none p-6 glass-premium text-white rounded-[1.5rem] hover:bg-white hover:text-black transition-all active:scale-95 shadow-xl border-white/5 cursor-pointer"
+              >
                 <MessageSquare size={24} />
               </button>
-              <button className="flex-1 sm:flex-none p-6 bg-primary text-white rounded-[1.5rem] hover:bg-[#ff6a00] transition-all active:scale-95 shadow-2xl shadow-primary/20 cursor-pointer">
+              <a 
+                href={`tel:+48500600700`}
+                className="flex-1 sm:flex-none p-6 bg-primary text-white rounded-[1.5rem] hover:bg-[#ff6a00] transition-all active:scale-95 shadow-2xl shadow-primary/20 flex items-center justify-center cursor-pointer"
+              >
                 <Phone size={24} />
-              </button>
+              </a>
             </div>
           </motion.div>
+          
+          {/* Live Logistics Console (Real-time logs terminal) */}
+          <div className="glass-premium rounded-[3rem] p-8 border-white/5 bg-black/40">
+             <h3 className="font-black text-white flex items-center gap-3 uppercase tracking-widest text-xs mb-6">
+                <Terminal size={16} className="text-primary" />
+                Live Logistics Console
+             </h3>
+             <div className="font-mono text-[11px] space-y-3 max-h-48 overflow-y-auto no-scrollbar">
+                {activeLogs.map((log, idx) => (
+                  <motion.div 
+                    initial={{ opacity: 0, x: -10 }} 
+                    animate={{ opacity: 1, x: 0 }}
+                    key={idx} 
+                    className="flex gap-4"
+                  >
+                     <span className="text-primary font-bold">[{log.time}]</span>
+                     <span className="text-white/40">system_log:</span>
+                     <span className="text-gray-200">{log.text}</span>
+                  </motion.div>
+                ))}
+             </div>
+          </div>
         </div>
 
         {/* Prawa strona: Timeline Bento */}
