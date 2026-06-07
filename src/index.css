@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ff4d00;
+  --color-accent: #ffb800;
+  --color-bg-dark: #0a0a0b;
+  --color-bg-card: #141416;
+  --color-border-subtle: rgba(255, 255, 255, 0.05);
+}
+
+:root {
+  background-color: var(--color-bg-dark);
+  color: #fff;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Selection */
+::selection {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Luksusowy Glassmorphism */
+.glass-premium {
+  background: rgba(20, 20, 22, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Animacja neonowego poświatu */
+@keyframes neon-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 77, 0, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(255, 77, 0, 0.4); }
+}
+
+.animate-neon {
+  animation: neon-pulse 4s infinite ease-in-out;
+}
