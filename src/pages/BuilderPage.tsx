@@ -5,7 +5,6 @@ import type { Topping, Pizza } from '../types';
 import { Check, Pizza as PizzaIcon, Sparkles, ChefHat, Plus, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import PizzaScene3D from '../components/PizzaScene3D';
 
 const BASE_PRICE = 25.00;
 
@@ -84,8 +83,40 @@ export default function BuilderPage() {
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
             <div className="absolute -inset-10 bg-primary/5 blur-[80px] group-hover:bg-primary/10 transition-colors duration-700" />
             
-            <div className="relative w-full h-full max-w-[500px] min-h-[350px]">
-              <PizzaScene3D selectedToppings={selectedToppings} size={pizzaSize} crust={crustType} />
+            <div className="relative w-full h-full max-w-[500px] aspect-square flex items-center justify-center">
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
+                className={`relative w-full h-full transition-all duration-500 ${
+                  pizzaSize === 'S' ? 'scale-90' : pizzaSize === 'M' ? 'scale-100' : 'scale-110'
+                }`}
+              >
+                <img 
+                  src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=98" 
+                  className={`w-full h-full object-cover rounded-full shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] ring-2 ring-white/5 transition-all duration-500 ${
+                    crustType === 'THIN' ? 'border-[8px]' : crustType === 'CLASSIC' ? 'border-[16px]' : 'border-[24px]'
+                  } border-[#1c1c1e]`}
+                  alt="Baza pizzy" 
+                />
+                
+                <AnimatePresence>
+                  {selectedToppings.map((t, idx) => (
+                    <motion.div
+                      key={t.id}
+                      initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                      animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                      style={{ rotate: `${(idx * 45) + (Math.random() * 10)}deg` }}
+                    >
+                      <div className="w-16 h-16 glass-premium text-white rounded-2xl flex items-center justify-center font-black text-xs shadow-2xl border border-white/10 translate-x-32 md:translate-x-48">
+                        {t.name[0]}
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
             </div>
 
             <div className="absolute bottom-10 left-10 right-10">
