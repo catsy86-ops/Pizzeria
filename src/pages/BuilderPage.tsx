@@ -140,7 +140,7 @@ export default function BuilderPage() {
               </motion.div>
             </div>
           </div>
-        </div>     </div>
+        </div>
 
         {/* Prawy Panel: Składniki i Konfiguracja */}
         <div className="flex-1 space-y-16">

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, type Variants } from 'framer-motion';
 import { ArrowRight, Sparkles, ShieldCheck, Flame, Play, RotateCcw, Scissors } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -12,6 +12,15 @@ export default function HomePage() {
     rotation: number;
     scale: number;
   }
+
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)');
+    setIsMobile(media.matches);
+    const listener = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, []);
 
   const [toppings, setToppings] = useState<PlacedTopping[]>([]);
   const [selectedTopping, setSelectedTopping] = useState<string>('pepperoni');
@@ -181,14 +190,17 @@ export default function HomePage() {
       <div className="absolute inset-0 z-0 h-screen overflow-hidden">
         <motion.div 
           initial={{ scale: 1.08, opacity: 0 }}
-          animate={{ 
+          animate={isMobile ? { 
+            opacity: 0.85,
+            scale: 1.02
+          } : { 
             scale: [1.02, 1.06, 1.02],
             rotate: [0, 0.4, -0.4, 0],
             opacity: 0.85,
             x: mousePos.x * -16,
             y: mousePos.y * -16
           }}
-          transition={{ 
+          transition={isMobile ? { duration: 1 } : { 
             x: { type: "spring", stiffness: 90, damping: 20 },
             y: { type: "spring", stiffness: 90, damping: 20 },
             scale: { duration: 15, repeat: Infinity, ease: "easeInOut" },
@@ -201,15 +213,15 @@ export default function HomePage() {
             src="https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=2000&q=95" 
             alt="Artisanal Pizzeria" 
             className="w-full h-full object-cover brightness-[0.85] contrast-[1.05]"
-            style={{ filter: 'url(#oven-heat-shimmer)' }}
+            style={isMobile ? undefined : { filter: 'url(#oven-heat-shimmer)' }}
           />
           {/* Dynamic fire light glow reflections on pizza */}
           <motion.div
-            animate={{
+            animate={isMobile ? { opacity: 0.25 } : {
               opacity: [0.15, 0.35, 0.22, 0.42, 0.15],
               scale: [1, 1.08, 0.96, 1.05, 1],
             }}
-            transition={{
+            transition={isMobile ? undefined : {
               duration: 5,
               repeat: Infinity,
               ease: "easeInOut"
@@ -223,93 +235,95 @@ export default function HomePage() {
 
         {/* Bubbling Cheese & Dough Heat Spots */}
         <motion.div 
-          animate={{ x: mousePos.x * -10, y: mousePos.y * -10 }}
+          animate={isMobile ? {} : { x: mousePos.x * -10, y: mousePos.y * -10 }}
           transition={{ type: "spring", stiffness: 90, damping: 20 }}
           className="absolute inset-0 z-[1] pointer-events-none"
         >
           {/* Active Bubble 1: Large glowing cheese bubble */}
           <motion.div 
-            animate={{ 
+            animate={isMobile ? { opacity: 0.4, scale: 1 } : { 
               scale: [0.95, 1.12, 0.95], 
               opacity: [0.35, 0.8, 0.35],
               borderRadius: ["42% 58% 50% 50%", "58% 42% 58% 42%", "42% 58% 50% 50%"]
             }}
-            transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+            transition={isMobile ? undefined : { duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
             className="absolute top-[35%] left-[52%] w-64 h-40 bg-gradient-to-br from-yellow-300/40 via-amber-500/20 to-transparent blur-xl border border-yellow-400/20"
           />
           <motion.div 
-            animate={{ 
+            animate={isMobile ? { opacity: 0.3, scale: 1 } : { 
               scale: [0.7, 1.3, 0.7], 
               opacity: [0.2, 0.75, 0.2],
             }}
-            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            transition={isMobile ? undefined : { duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
             className="absolute top-[39%] left-[55%] w-16 h-16 bg-white/25 rounded-full blur-md shadow-[0_0_15px_rgba(253,224,71,0.5)]"
           />
 
           {/* Active Bubble 2: Boiling heat point */}
           <motion.div 
-            animate={{ 
+            animate={isMobile ? { opacity: 0.35, scale: 1 } : { 
               scale: [1, 1.2, 1], 
               opacity: [0.3, 0.7, 0.3],
               borderRadius: ["50%", "47% 53% 47% 53%", "50%"]
             }}
-            transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            transition={isMobile ? undefined : { duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
             className="absolute top-[48%] left-[45%] w-48 h-32 bg-gradient-to-tr from-yellow-400/30 via-orange-600/15 to-transparent blur-2xl border border-yellow-500/15"
           />
           <motion.div 
-            animate={{ 
+            animate={isMobile ? { opacity: 0.2, scale: 1 } : { 
               scale: [0.6, 1.25, 0.6], 
               opacity: [0.15, 0.65, 0.15],
             }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+            transition={isMobile ? undefined : { duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
             className="absolute top-[51%] left-[47%] w-12 h-12 bg-amber-400/30 rounded-full blur-lg"
           />
 
           {/* Active Bubble 3: Baking crust glow */}
           <motion.div 
-            animate={{ 
+            animate={isMobile ? { opacity: 0.45, scale: 1 } : { 
               scale: [0.9, 1.08, 0.9], 
               opacity: [0.4, 0.85, 0.4],
               borderRadius: ["60% 40% 50% 50%", "50% 60% 40% 50%", "60% 40% 50% 50%"]
             }}
-            transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+            transition={isMobile ? undefined : { duration: 3.8, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
             className="absolute top-[28%] left-[60%] w-52 h-30 bg-gradient-to-r from-yellow-300/40 via-amber-500/20 to-transparent blur-xl"
           />
 
           {/* Active Bubble 4: Bubbling hot spot bottom */}
           <motion.div 
-            animate={{ 
+            animate={isMobile ? { opacity: 0.3, scale: 1 } : { 
               scale: [0.8, 1.15, 0.8], 
               opacity: [0.25, 0.75, 0.25] 
             }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.8 }}
+            transition={isMobile ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.8 }}
             className="absolute top-[58%] left-[54%] w-40 h-24 bg-gradient-to-br from-yellow-400/35 via-red-500/10 to-transparent blur-2xl"
           />
         </motion.div>
 
         {/* SVG Filter for Heat Waves / Shimmering Cheese (Tuned to keep details sharp) */}
-        <svg className="absolute w-0 h-0 pointer-events-none">
-          <defs>
-            <filter id="oven-heat-shimmer">
-              <feTurbulence type="fractalNoise" baseFrequency="0.004 0.008" numOctaves="2" result="noise">
-                <animate attributeName="baseFrequency" dur="18s" values="0.004 0.008;0.006 0.014;0.004 0.008" repeatCount="indefinite" />
-              </feTurbulence>
-              <motion.feDisplacementMap 
-                in="SourceGraphic" 
-                in2="noise" 
-                animate={{ scale: [2, 4.5, 2] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                xChannelSelector="R" 
-                yChannelSelector="G" 
-              />
-            </filter>
-          </defs>
-        </svg>
+        {!isMobile && (
+          <svg className="absolute w-0 h-0 pointer-events-none">
+            <defs>
+              <filter id="oven-heat-shimmer">
+                <feTurbulence type="fractalNoise" baseFrequency="0.004 0.008" numOctaves="2" result="noise">
+                  <animate attributeName="baseFrequency" dur="18s" values="0.004 0.008;0.006 0.014;0.004 0.008" repeatCount="indefinite" />
+                </feTurbulence>
+                <motion.feDisplacementMap 
+                  in="SourceGraphic" 
+                  in2="noise" 
+                  animate={{ scale: [2, 4.5, 2] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                  xChannelSelector="R" 
+                  yChannelSelector="G" 
+                />
+              </filter>
+            </defs>
+          </svg>
+        )}
       </div>
 
       {/* 2. DYNAMIC FIRE SPARKS / EMBERS OVERLAY */}
       <div className="absolute inset-0 z-[2] pointer-events-none overflow-hidden h-screen">
-        {[...Array(18)].map((_, i) => {
+        {[...Array(isMobile ? 6 : 18)].map((_, i) => {
           const size = Math.random() * 4 + 2; // 2px to 6px
           const left = Math.random() * 100; // random offset
           const duration = Math.random() * 7 + 5; // 5s to 12s
@@ -325,7 +339,7 @@ export default function HomePage() {
               }}
               animate={{
                 y: ['105vh', '-10vh'],
-                x: [0, Math.sin(i) * 60 + (Math.random() * 40 - 20) + (mousePos.x * 20), 0],
+                x: isMobile ? [0, Math.sin(i) * 30, 0] : [0, Math.sin(i) * 60 + (Math.random() * 40 - 20) + (mousePos.x * 20), 0],
                 opacity: [0, 0.7, 0],
               }}
               transition={{
@@ -534,7 +548,7 @@ export default function HomePage() {
 
         {/* Floating Ash & Oven Embers - fixed 105vh viewport issue by animating inside container */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-          {[...Array(20)].map((_, i) => {
+          {[...Array(isMobile ? 6 : 20)].map((_, i) => {
             const size = Math.random() * 4 + 2; // 2px to 6px
             const left = Math.random() * 100;
             const duration = Math.random() * 8 + 6;
@@ -551,7 +565,7 @@ export default function HomePage() {
                 }}
                 animate={{
                   y: [0, -800],
-                  x: [0, Math.sin(i) * 60 + (Math.random() * 40 - 20), 0],
+                  x: isMobile ? [0, Math.sin(i) * 30, 0] : [0, Math.sin(i) * 60 + (Math.random() * 40 - 20), 0],
                   opacity: [0, 0.95, 0],
                 }}
                 transition={{
